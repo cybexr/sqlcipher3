@@ -68,16 +68,23 @@ jobs:
     - name: Build sdist
       run: pipx run build --sdist
     
+    - name: Debug - List dist directory
+      run: |
+        echo "Contents of dist directory:"
+        ls -la dist/
+        echo "Looking for sdist files:"
+        find dist/ -name "*.tar.gz" -o -name "*.whl"
+    
     - name: Test sdist
       run: |
-        python -m pip install dist/sqlcipher3_wheels-*.tar.gz
+        python -m pip install dist/ygg-sqlcipher3-wheels-*.tar.gz
         mv sqlcipher3 sqlcipher3_ &&
         mv sqlcipher3_ sqlcipher3
 
     - uses: actions/upload-artifact@v4
       with:
         name: sdist
-        path: dist/sqlcipher3_wheels-*.tar.gz
+        path: dist/ygg-sqlcipher3-wheels-*.tar.gz
 
   build-wheels:
     needs: prepare-sqlite
@@ -86,86 +93,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Linux x86_64 (64位)
           - os: ubuntu-latest
             cibw_archs: x86_64
             cibw_build: "cp*-manylinux_*"
             compile_target: x86_64
             out: x86_64-manylinux
-          - os: ubuntu-latest
-            cibw_archs: x86_64
-            cibw_build: "cp*-musllinux_*"
-            compile_target: x86_64
-            out: x86_64-musllinux
-          - os: ubuntu-24.04-arm
-            cibw_archs: aarch64
-            cibw_build: "cp*-manylinux_*"
-            compile_target: armv8
-            out: armv8-manylinux
-          - os: ubuntu-24.04-arm
-            cibw_archs: aarch64
-            cibw_build: "cp*-musllinux_*"
-            compile_target: armv8
-            out: armv8-musllinux
+          # Linux x86 (32位)
           - os: ubuntu-latest
             cibw_archs: i686
             cibw_build: "cp*-manylinux_*"
             compile_target: x86
             out: x86-manylinux
-          - os: ubuntu-latest
-            cibw_archs: i686
-            cibw_build: "cp*-musllinux_*"
-            compile_target: x86
-            out: x86-musllinux
-          - os: ubuntu-latest
-            cibw_archs: ppc64le
+          # Linux ARM64 (64位)
+          - os: ubuntu-24.04-arm
+            cibw_archs: aarch64
             cibw_build: "cp*-manylinux_*"
-            compile_target: ppc64le
-            out: pp64le-manylinux
-          - os: ubuntu-latest
-            cibw_archs: ppc64le
-            cibw_build: "cp*-musllinux_*"
-            compile_target: ppc64le
-            out: ppc64le-musllinux
-          - os: ubuntu-latest
-            cibw_archs: s390x
-            cibw_build: "cp*-manylinux_*"
-            compile_target: s390x
-            out: s390x-manylinux
-          - os: ubuntu-latest
-            cibw_archs: s390x
-            cibw_build: "cp*-musllinux_*"
-            compile_target: s390x
-            out: s390x-musllinux
+            compile_target: armv8
+            out: armv8-manylinux
+          # Windows x64 (64位)
           - os: windows-latest
             cibw_archs: AMD64
             cibw_build: "cp*"
             compile_target: x86_64
             out: x86_64-windows
+          # Windows x86 (32位)
           - os: windows-latest
             cibw_archs: x86
             cibw_build: "cp*"
             compile_target: x86
             out: x86-windows
+          # Windows ARM64 (64位)
           - os: windows-latest
             cibw_archs: ARM64
             cibw_build: "cp*"
             compile_target: armv8
             out: armv8-windows
-          - os: macos-13
-            cibw_archs: x86_64
-            cibw_build: "cp*"
-            compile_target: x86_64
-            out: x86_64-macos
-          - os: macos-latest
-            cibw_archs: arm64
-            cibw_build: "cp*"
-            compile_target: armv8
-            out: armv8-macos
-          - os: macos-latest
-            cibw_archs: universal2
-            cibw_build: "cp*"
-            compile_target: universal2
-            out: universal2-macos
 
     steps:
     - uses: actions/checkout@v4
