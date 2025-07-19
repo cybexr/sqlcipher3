@@ -66,7 +66,16 @@ jobs:
         path: ./src/sqlcipher
 
     - name: Build sdist
-      run: pipx run build --sdist
+      run: |
+        # 清理之前的构建
+        rm -rf dist/ build/ *.egg-info/
+        # 显示当前包名配置
+        echo "Current package name in setup.py:"
+        grep -n "name=" setup.py
+        echo "Current package name in pyproject.toml:"
+        grep -n "name = " pyproject.toml
+        # 构建 sdist
+        pipx run build --sdist
     
     - name: Debug - List dist directory
       run: |
@@ -74,17 +83,26 @@ jobs:
         ls -la dist/
         echo "Looking for sdist files:"
         find dist/ -name "*.tar.gz" -o -name "*.whl"
+        echo "Full file listing:"
+        find dist/ -type f
     
     - name: Test sdist
       run: |
-        python -m pip install dist/ygg-sqlcipher3-wheels-*.tar.gz
+        # 找到实际的 sdist 文件
+        SDIST_FILE=$(find dist/ -name "*.tar.gz" | head -1)
+        if [ -z "$SDIST_FILE" ]; then
+          echo "No .tar.gz file found in dist/"
+          exit 1
+        fi
+        echo "Installing sdist file: $SDIST_FILE"
+        python -m pip install "$SDIST_FILE"
         mv sqlcipher3 sqlcipher3_ &&
         mv sqlcipher3_ sqlcipher3
 
     - uses: actions/upload-artifact@v4
       with:
         name: sdist
-        path: dist/ygg-sqlcipher3-wheels-*.tar.gz
+        path: dist/*.tar.gz
 
   build-wheels:
     needs: prepare-sqlite
