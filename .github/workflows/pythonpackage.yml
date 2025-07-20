@@ -37,7 +37,7 @@ jobs:
     - if: steps.sqlite-amalgamation.outputs.cache-hit != 'true'
       run: |
         cd sqlcipher/
-        LIBS="-lm" ./configure --disable-tcl --enable-tempstore=yes --enable-fts5 --enable-fts4 --enable-fts3 --enable-rtree
+        LIBS="-lm" ./configure --disable-tcl --enable-tempstore=yes --enable-fts5 --enable-fts4 --enable-fts3 --enable-rtree --enable-load-extension
         make sqlite3.c
 
     - uses: actions/upload-artifact@v4
@@ -192,6 +192,8 @@ jobs:
   upload-pypi:
     needs: [build-wheels, build-sdist]
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
 
     steps:
       - uses: actions/download-artifact@v4
@@ -205,9 +207,25 @@ jobs:
           merge-multiple: true
           path: dist
 
-      - name: Publish to Private PyPI
+      - name: Debug - Check package metadata
+        run: |
+          echo "Checking package metadata..."
+          python -m pip install twine
+          python -m twine check dist/*
+          echo "Package files:"
+          ls -la dist/
+      
+      - name: Publish to GitHub Packages
         run: |
           python -m pip install --upgrade pip
+          python -m pip install twine
+          python -m twine upload --repository-url https://pypi.pkg.github.com/${{ github.repository }} dist/*
+        env:
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Private PyPI (Coding.net)
+        run: |
           python -m pip install twine
           python -m twine upload --repository-url https://yggsoft-pypi.pkg.coding.net/ygga6/a6 dist/*
         env:
