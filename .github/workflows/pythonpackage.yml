@@ -176,9 +176,11 @@ jobs:
       uses: pypa/cibuildwheel@v2.23.2
       env:
         CIBW_BUILD_FRONTEND: build
-        CIBW_BUILD: ${{ matrix.cibw_build }}
+        CIBW_BUILD: "cp38-* cp312-*"
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
         CIBW_ENVIRONMENT: SQLCIPHER3_COMPILE_TARGET=${{ matrix.compile_target }}
+        # 限制 Python 版本范围 - 只构建 Python 3.8-3.12
+        #CIBW_SKIP: "cp36-* cp37-* cp313-*"
         CIBW_TEST_COMMAND: >
           mv {project}/sqlcipher3 {project}/sqlcipher3_ &&
           python {project}/tests/ &&
@@ -223,11 +225,3 @@ jobs:
         env:
           TWINE_USERNAME: ${{ github.actor }}
           TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to Private PyPI (Coding.net)
-        run: |
-          python -m pip install twine
-          python -m twine upload --repository-url https://yggsoft-pypi.pkg.coding.net/ygga6/a6 dist/*
-        env:
-          TWINE_USERNAME: ${{ secrets.CODING_PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.CODING_PYPI_PASSWORD }}
