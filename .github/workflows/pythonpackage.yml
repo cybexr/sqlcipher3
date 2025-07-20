@@ -141,12 +141,6 @@ jobs:
             cibw_build: "cp*"
             compile_target: x86
             out: x86-windows
-          # Windows ARM64 (64位)
-          - os: windows-latest
-            cibw_archs: ARM64
-            cibw_build: "cp*"
-            compile_target: armv8
-            out: armv8-windows
 
     steps:
     - uses: actions/checkout@v4

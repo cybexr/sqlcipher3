@@ -4,7 +4,7 @@ version = "0.5.7"
 description = "DB-API 2.0 interface for SQLCipher 3.x"
 readme = { content-type = "text/markdown", file = "README.md" }
 authors = [{ name = "Charles Leifer", email = "coleifer@gmail.com" }]
-license = { text = "zlib/libpng" }
+license = "Zlib"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
