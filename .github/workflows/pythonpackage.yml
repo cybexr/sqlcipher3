@@ -74,6 +74,9 @@ jobs:
         grep -n "name=" setup.py
         echo "Current package name in pyproject.toml:"
         grep -n "name = " pyproject.toml
+        # 显示 pyproject.toml 的完整内容
+        echo "Full pyproject.toml content:"
+        cat pyproject.toml
         # 构建 sdist
         pipx run build --sdist
     
